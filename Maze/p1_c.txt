@@ -1,0 +1,53 @@
+horizon_min = 1
+horizon_max = 31
+horizons = [i for i in range(horizon_min, horizon_max)]
+tests = 10000
+scores = np.zeros((tests, horizon_max))
+scores_still = np.zeros((tests, horizon_max))
+
+def test_horizons(tests, horizon_min, horizon_max, start):
+    env = mz.Maze(maze)
+    scores = np.zeros((tests, horizon_max-1))
+
+    for T in range(horizon_min, horizon_max-1):
+        V, policy= mz.dynamic_programming(env,T+1)
+        for i in range(1, tests):
+            path = env.simulate(start, policy, method)
+            outcome = mz.analyze_policy(path, maze)
+            if outcome=="HURRA":
+                scores[i, T] = 1
+            
+            if outcome=="DEAD":
+                scores[i, T] = -1
+    return scores
+
+def test_horizons_still(tests, horizon_min, horizon_max, start):
+    env = mz_qd.Maze(maze)
+    scores = np.zeros((tests, horizon_max-1))
+
+    for T in range(horizon_min, horizon_max-1):
+        V, policy= mz_qd.dynamic_programming(env,T+1)
+        
+        for i in range(tests):
+            path = env.simulate(start, policy, method)
+            outcome = mz_qd.analyze_policy(path, maze)
+            if outcome=="HURRA":
+                scores[i, T] = 1
+            
+            if outcome=="DEAD":
+                scores[i, T] = -1
+    return scores
+
+scores = pd.DataFrame(test_horizons(tests=tests, horizon_min=horizon_min, horizon_max=horizon_max, start=start), columns=horizons)
+scores_still = pd.DataFrame(test_horizons_still(tests=tests, horizon_min=horizon_min, horizon_max=horizon_max, start=start), columns=horizons)
+
+scores_without_dead = scores.replace(to_replace=-1, value=0)
+scores_still_without_dead = scores_still.replace(to_replace=-1, value=0)
+
+# scores_without_dead.mean().plot()
+fig, ax = plt.subplots(1, 1, figsize=(8,6))
+sns.lineplot(scores_without_dead.mean(), ax=ax, label="Minotaur has to move")
+sns.lineplot(scores_still_without_dead.mean(), ax=ax, label="Minotaur does not need to move")
+ax.set_xlabel("Horizon T")
+ax.set_ylabel("Probability of getting out alive")
+ax.set_title("Probability of getting out in function of horizon T")
