@@ -244,7 +244,7 @@ class Maze:
             # Add the starting position in the maze to the path
             path.append(start)
             # Move to next state given the policy and the current state, check if eaten
-            threshold = 1 - self.gamma
+            threshold = self.gamma
             a_min = np.random.randint(0, 4)
             next_s = self.__move(s, policy[s], a_min)
             # Add the position in the maze corresponding to the next state to the path except if game over
