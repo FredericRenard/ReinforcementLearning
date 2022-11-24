@@ -1,9 +1,3 @@
-# Name : Frederic Renard 
-# Personal Number : 990725-T392
-# Name : Loic Thiriet
-# Personal Number : 
-
-
 # Load packages
 import numpy as np
 import gym
